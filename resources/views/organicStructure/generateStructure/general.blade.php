@@ -25,8 +25,9 @@
 
         <!-- Card Principal -->
         <div class="card mb-4 structure-card">
-            <div class="card-headerbg-nav bg-nav d-flex flex-column flex-md-row align-items-start align-items-md-center p-2">
-                <span class="text-white"><i class="fas fa-filter me-2"></i>Filtrar Estrutura Geral</span>
+            <div
+                class="card-headerbg-nav bg-nav d-flex flex-column flex-md-row align-items-start align-items-md-center p-2">
+                <h5 class="mb-2 mb-md-0 text-white"><i class="fas fa-filter me-2"></i>Filtrar Estrutura Geral</h5>
                 <div class="ms-auto">
                     @can('create-structure')
                         <a href="{{ route('structure.specific.view') }}" class="btn btn-light btn-sm text-dark">
@@ -41,51 +42,76 @@
                 <form method="POST" action="{{ route('structure.geral') }}">
                     @csrf
                     <div class="row g-3">
-                        <!-- Região -->
+                        <!-- Ramo -->
                         <div class="form-group col-md-3">
-                            <label for="regiao" class="form-label">
-                                <i class="fas fa-map-marked-alt me-1"></i> Região
+                            <label for="ramo" class="form-label">
+                                <i class="fas fa-flag me-1"></i> Ramo <span class="text-danger">*</span>
                             </label>
-                            <select class="form-select" id="regiao" name="regiao">
-                                <option value="">Selecione uma região</option>
-                                @foreach ($regioes as $regiao)
-                                    <option value="{{ $regiao->id_regiao }}" {{ old('regiao', request('regiao')) == $regiao->id_regiao ? 'selected' : '' }}>
-                                        {{ $regiao->nome_regiao }}
+                            <select class="form-select" id="ramo" name="ramo">
+                                <option value="">Selecione um ramo</option>
+                                @foreach ($ramos as $ramo)
+                                    <option value="{{ $ramo->RamoID }}"
+                                        {{ old('ramo', request('ramo')) == $ramo->RamoID ? 'selected' : '' }}>
+                                        {{ $ramo->DescRamo }}
                                     </option>
                                 @endforeach
                             </select>
                         </div>
 
-                        <!-- UEO -->
+                        <!-- Região -->
+                        <div class="form-group col-md-3">
+                            <label for="id_regiao" class="form-label" id="label-regiao">
+                                <i class="fas fa-map-marker-alt me-2"></i>Região <span class="text-danger">*</span>
+                            </label>
+                            <select name="id_regiao" id="id_regiao" class="form-select">
+                                <option value="">Selecione uma região</option>
+                                @foreach ($regioes as $regiao)
+                                    @if (request('ramo') == $regiao->RamoID)
+                                        <option value="{{ $regiao->id_regiao }}"
+                                            {{ old('id_regiao', request('id_regiao')) == $regiao->id_regiao ? 'selected' : '' }}>
+                                            {{ $regiao->nome_regiao }}
+                                        </option>
+                                    @endif
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <!-- Unidade -->
                         <div class="form-group col-md-3">
                             <label for="unidade" class="form-label">
                                 <i class="fas fa-building me-1"></i> UEO
                             </label>
                             <select name="unidade" id="unidade" class="form-select">
-                                <option value="">Selecione uma UEO</option>
-                                @if (!empty($ueos))
-                                    @foreach ($ueos as $ueo)
-                                        <option value="{{ $ueo->id_unidade_pai }}" {{ old('unidade', request('unidade')) == $ueo->id_unidade_pai ? 'selected' : '' }}>
+                                <option value="">Selecione uma unidade</option>
+                                @foreach ($ueos as $ueo)
+                                    @if (request('id_regiao') == $ueo->RM)
+                                        <option value="{{ $ueo->id_unidade_pai }}"
+                                            {{ old('unidade', request('unidade')) == $ueo->id_unidade_pai ? 'selected' : '' }}>
                                             {{ $ueo->Ueo }}
                                         </option>
-                                    @endforeach
-                                @endif
+                                    @endif
+                                @endforeach
                             </select>
+
                         </div>
 
-                        <!-- Filtro de Cargos -->
-                        <div class="form-group col-md-3">
+
+                        <!-- Filtro -->
+                        <div class="form-group col-md-2">
                             <label for="filtro" class="form-label">
                                 <i class="fas fa-filter me-1"></i> Filtrar Cargos
                             </label>
                             <select name="filtro" id="filtro" class="form-select">
-                                <option value="1" {{ old('filtro', request('filtro')) == 1 ? 'selected' : '' }}>Todos Cargos</option>
-                                <option value="2" {{ old('filtro', request('filtro')) == 2 ? 'selected' : '' }}>Ocupados</option>
-                                <option value="3" {{ old('filtro', request('filtro')) == 3 ? 'selected' : '' }}>Vagos</option>
+                                <option value="1" {{ old('filtro', request('filtro')) == 1 ? 'selected' : '' }}>Todos
+                                </option>
+                                <option value="2" {{ old('filtro', request('filtro')) == 2 ? 'selected' : '' }}>
+                                    Ocupados</option>
+                                <option value="3" {{ old('filtro', request('filtro')) == 3 ? 'selected' : '' }}>Vagos
+                                </option>
                             </select>
                         </div>
 
-                        <!-- Botão de Submit -->
+                        <!-- Botão -->
                         <div class="form-group col-md-3 d-flex align-items-end">
                             <button type="submit" class="btn btn-md btn-warning w-50">
                                 <i class="fas fa-search me-1"></i> Filtrar
@@ -93,6 +119,7 @@
                         </div>
                     </div>
                 </form>
+
 
                 <!-- Tabela de Resultados -->
                 @isset($estrutura)
@@ -130,4 +157,5 @@
             </div>
         </div>
     </div>
+
 @endsection

@@ -21,7 +21,7 @@
         <div class="card mb-4 border-0 shadow-sm">
             <div class="card-header bg-nav text-white">
                 <div class="d-flex justify-content-between align-items-center">
-                    <span><i class="fas fa-edit me-2"></i> Editar</span>
+                    <h5><i class="fas fa-edit me-2"></i> Editar</h5>
                     <div class="d-flex gap-2">
                         @can('index-structure')
                             <a href="{{ route('structure.index') }}" class="btn btn-light btn-sm">
@@ -72,7 +72,7 @@
                                                     @endforeach
                                                 </select>
                                                 <label for="ramo" class="text-muted">
-                                                    <i class="fas fa-building me-2"></i>Ramo
+                                                    <i class="fas fa-flag me-1"></i> Ramo
                                                 </label>
                                             </div>
                                         </div>

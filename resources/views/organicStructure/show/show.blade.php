@@ -21,7 +21,7 @@
     <div class="card mb-4 border-0 shadow-sm">
         <div class="card-header bg-nav text-white">
             <div class="d-flex justify-content-between align-items-center">
-                <span><i class="fas fa-eye me-2"></i> Visualizar</span>
+                <h5><i class="fas fa-eye me-2"></i> Visualizar</h5>
                 <div class="d-flex gap-2">
                     @can('index-structure')
                         <a href="{{ route('structure.index') }}" class="btn btn-light btn-sm">

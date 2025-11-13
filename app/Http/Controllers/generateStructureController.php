@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
@@ -10,28 +11,44 @@ class generateStructureController extends Controller
     {
         $menu = 'generate';
 
-        $regioes = DB::table('tbl_regiaomilitar')->select('CodRM as id_regiao', 'Designacao_RM as nome_regiao')->get();
+        $ramos = DB::table('do_ramos')
+            ->select('RamoID', 'Ramo', 'DescRamo')
+            ->orderBy('RamoID')
+            ->get();
 
-        $ueos = DB::table('do_unidadesmilitares')->select('UnidadeID as id_unidade_pai', 'Ueo as Ueo')->get();
+        $regioes = DB::table('tbl_regiaomilitar')
+            ->select('CodRM as id_regiao', 'Designacao_RM as nome_regiao', 'RamoID')
+            ->get();
 
-        return view('organicStructure.generateStructure.general', compact('ueos', 'regioes', 'menu'));
+        $ueos = DB::table('do_unidadesmilitares')
+            ->select('UnidadeID as id_unidade_pai', 'Ueo', 'RM')
+            ->get();
+
+        return view('organicStructure.generateStructure.general', compact('ueos', 'regioes', 'ramos', 'menu'));
     }
+
 
     public function geral(Request $request)
     {
         $request->validate([
-            'regiao' => 'required|integer',
-            'unidade' => 'required|integer',
+            'ramo' => 'required|integer',
+            'id_regiao' => 'nullable|integer',
+            'unidade' => 'nullable|integer',
             'filtro' => 'nullable|in:1,2,3',
         ]);
 
-        $regioes = DB::table('tbl_regiaomilitar')->select('CodRM as id_regiao', 'Designacao_RM as nome_regiao')->get();
-        // Inicializa a variável $ueos
+        $ramos = DB::table('do_ramos')->select('RamoID', 'Ramo', 'DescRamo')->get();
+        $regioes = DB::table('tbl_regiaomilitar')
+            ->select('CodRM as id_regiao', 'Designacao_RM as nome_regiao', 'RamoID')
+            ->get();
+
         $ueos = [];
 
-        // Se a região estiver presente no request, carrega as UEOs correspondentes
-        if ($request->filled('regiao')) {
-            $ueos = DB::table('do_unidadesmilitares')->select('UnidadeID as id_unidade_pai', 'Ueo')->where('RM', $request->regiao)->get();
+        if ($request->filled('id_regiao')) {
+            $ueos = DB::table('do_unidadesmilitares')
+                ->select('UnidadeID as id_unidade_pai', 'Ueo', 'RM')
+                ->where('RM', $request->id_regiao)
+                ->get();
         }
 
         $query = DB::table('tbl_dependencias as dep')
@@ -44,18 +61,32 @@ class generateStructureController extends Controller
             ->leftJoin('pessoa_juridica as pj', 'pj.id_pessoa_juridica', '=', 'cp.id_pessoa')
             ->leftJoin('dcm_postosmilitares as patente', 'patente.Posto_Id', '=', 'pj.id_patente')
             ->leftJoin('pessoa_fisica as pf', 'pf.id_pessoa_fisica', '=', 'pj.id_pessoa_juridica')
-
-            ->where('dep.id_unidade_pai', $request->unidade)
+            ->leftJoin('do_unidadesmilitares', 'do_unidadesmilitares.UnidadeID', '=', 'dep.id_unidade_pai')
+            ->leftJoin('tbl_regiaomilitar', 'tbl_regiaomilitar.CodRM', '=', 'do_unidadesmilitares.RM')
+            ->leftJoin('do_ramos', 'do_ramos.RamoID', '=', 'tbl_regiaomilitar.RamoID')
             ->select(
                 'eo.id_estrutura_organica',
                 'c.nome_cargo',
                 'p.PostoAbrev as Posto',
+                'p.Posto_Id',
                 'eo.quantidade_organica',
-                DB::raw("CONCAT(SUBSTRING_INDEX(pf.nome, ' ', 1), ' ', SUBSTRING_INDEX(pf.nome, ' ', -1)) as nome"), // <-- substituindo pessoa.nome
+                'do_ramos.RamoID',
+                'tbl_regiaomilitar.abrev_RM',
+                DB::raw("CONCAT(SUBSTRING_INDEX(pf.nome, ' ', 1), ' ', SUBSTRING_INDEX(pf.nome, ' ', -1)) as nome"),
                 'esu.descricao_sub_unidade',
                 'dep.id_dependencia',
-                'patente.PostoAbrev as patente',
-            )->orderBy('eo.id_estrutura_organica');
+                'patente.PostoAbrev as patente'
+            )
+            ->where('do_ramos.RamoID', $request->ramo);
+
+        // 👉 se o campo de região for usado como filtro direto
+        if ($request->filled('id_regiao')) {
+            $query->where('tbl_regiaomilitar.CodRM', $request->id_regiao);
+        }
+
+        if ($request->filled('unidade')) {
+            $query->where('dep.id_unidade_pai', $request->unidade);
+        }
 
         if ($request->filtro == 2) {
             $query->whereNotNull('cp.id_pessoa');
@@ -63,42 +94,74 @@ class generateStructureController extends Controller
             $query->whereNull('cp.id_pessoa');
         }
 
-        $estrutura = $query->get();
+        $estrutura = $query
+            ->orderBy('eo.id_estrutura_organica')
+            ->orderBy('p.Posto_Id')
+            ->get();
 
-        return view('organicStructure.generateStructure.general', compact('ueos', 'estrutura', 'regioes'));
+        return view('organicStructure.generateStructure.general', compact('ueos', 'estrutura', 'regioes', 'ramos'));
     }
+
+
 
     public function specificView()
     {
         $menu = 'generate';
 
-        $regioes = DB::table('tbl_regiaomilitar')->select('CodRM as id_regiao', 'Designacao_RM as nome_regiao')->get();
+        // 🔹 Carrega todos os ramos
+        $ramos = DB::table('do_ramos')
+            ->select('RamoID', 'Ramo', 'DescRamo')
+            ->orderBy('RamoID')
+            ->get();
 
-        $ueos = DB::table('do_unidadesmilitares')->select('UnidadeID as id_unidade_pai', 'Ueo as Ueo')->get();
+        // 🔹 Carrega todas as regiões com o Ramo associado
+        $regioes = DB::table('tbl_regiaomilitar')
+            ->select('CodRM as id_regiao', 'Designacao_RM as nome_regiao', 'RamoID')
+            ->get();
 
-        $subunidades = collect(); // 👈 Garante que a variável exista
+        // 🔹 Todas as UEOs (carregadas depois via seleção)
+        $ueos = DB::table('do_unidadesmilitares')
+            ->select('UnidadeID as id_unidade_pai', 'Ueo', 'RM')
+            ->get();
 
-        $estrutura = collect(); // 👈 Também inicialize a estrutura vazia se usada na view
+        $subunidades = collect();
+        $estrutura = collect();
 
-        return view('organicStructure.generateStructure.specific', compact('ueos', 'subunidades', 'estrutura', 'regioes', 'menu'));
+        return view('organicStructure.generateStructure.specific', compact('ramos', 'regioes', 'ueos', 'subunidades', 'estrutura', 'menu'));
     }
 
     public function specific(Request $request)
     {
         $request->validate([
+            'ramo' => 'required|integer',
             'id_regiao' => 'required|integer',
-            'ueo' => 'required|integer',
+            'unidade' => 'required|integer',
             'subunidade' => 'nullable|integer',
             'filtrar_cargos' => 'nullable|in:1,2,3',
         ]);
 
-        $regioes = DB::table('tbl_regiaomilitar')->select('CodRM as id_regiao', 'Designacao_RM as nome_regiao')->get();
+        // 🔹 Carrega ramos
+        $ramos = DB::table('do_ramos')->select('RamoID', 'Ramo', 'DescRamo')->get();
 
-        // Carrega UEOs da região selecionada
-        $ueos = DB::table('do_unidadesmilitares')->select('UnidadeID as id_unidade_pai', 'Ueo')->where('RM', $request->id_regiao)->get();
+        // 🔹 Carrega regiões do ramo selecionado
+        $regioes = DB::table('tbl_regiaomilitar')
+            ->select('CodRM as id_regiao', 'Designacao_RM as nome_regiao', 'RamoID')
+            ->where('RamoID', $request->ramo)
+            ->get();
 
-        // Carrega subunidades da UEO selecionada
-        $subunidades = DB::table('tbl_dependencias as d')->join('tbl_estrutura_sub_unidade as s', 's.id_es', '=', 'd.id_sub_unidade_mae')->select('s.id_es', 's.descricao_sub_unidade')->where('d.id_unidade_pai', $request->ueo)->distinct()->get();
+        // 🔹 Carrega UEOs da região selecionada
+        $ueos = DB::table('do_unidadesmilitares')
+            ->select('UnidadeID as id_unidade_pai', 'Ueo', 'RM')
+            ->where('RM', $request->id_regiao)
+            ->get();
+
+        // 🔹 Carrega subunidades da UEO selecionada
+        $subunidades = DB::table('tbl_dependencias as d')
+            ->join('tbl_estrutura_sub_unidade as s', 's.id_es', '=', 'd.id_sub_unidade_mae')
+            ->select('s.id_es', 's.descricao_sub_unidade')
+            ->where('d.id_unidade_pai', $request->unidade)
+            ->distinct()
+            ->get();
 
         $estrutura = collect();
 
@@ -113,22 +176,38 @@ class generateStructureController extends Controller
                 ->leftJoin('pessoa_juridica as pj', 'pj.id_pessoa_juridica', '=', 'cp.id_pessoa')
                 ->leftJoin('dcm_postosmilitares as patente', 'patente.Posto_Id', '=', 'pj.id_patente')
                 ->leftJoin('pessoa_fisica as pf', 'pf.id_pessoa_fisica', '=', 'pj.id_pessoa_juridica')
-                ->where('dep.id_sub_unidade_mae', $request->subunidade)
+                ->leftJoin('do_unidadesmilitares', 'do_unidadesmilitares.UnidadeID', '=', 'dep.id_unidade_pai')
+                ->leftJoin('tbl_regiaomilitar', 'tbl_regiaomilitar.CodRM', '=', 'do_unidadesmilitares.RM')
+                ->leftJoin('do_ramos', 'do_ramos.RamoID', '=', 'tbl_regiaomilitar.RamoID')
                 ->when($request->filtrar_cargos == 2, fn($q) => $q->whereNotNull('cp.id_pessoa'))
                 ->when($request->filtrar_cargos == 3, fn($q) => $q->whereNull('cp.id_pessoa'))
-                ->select('eo.id_estrutura_organica', 'c.nome_cargo', 'p.PostoAbrev as Posto', 'eo.quantidade_organica', 'dep.id_sub_unidade_mae', 'dep.id_dependencia', 's.descricao_sub_unidade',     DB::raw("CONCAT(SUBSTRING_INDEX(pf.nome, ' ', 1), ' ', SUBSTRING_INDEX(pf.nome, ' ', -1)) as nome"),
-               'patente.PostoAbrev as patente')
-                
+                ->where('do_ramos.RamoID', $request->ramo)
+                ->where('tbl_regiaomilitar.CodRM', $request->id_regiao)
+                ->where('dep.id_sub_unidade_mae', $request->subunidade)
+                ->select(
+                    'eo.id_estrutura_organica',
+                    'c.nome_cargo',
+                    'p.PostoAbrev as Posto',
+                    'eo.quantidade_organica',
+                    'dep.id_sub_unidade_mae',
+                    'dep.id_dependencia',
+                    's.descricao_sub_unidade',
+                    DB::raw("CONCAT(SUBSTRING_INDEX(pf.nome, ' ', 1), ' ', SUBSTRING_INDEX(pf.nome, ' ', -1)) as nome"),
+                    'patente.PostoAbrev as patente'
+                )
                 ->get();
         }
 
-        return view('organicStructure.generateStructure.specific', compact('regioes', 'ueos', 'subunidades', 'estrutura'))->with([
-            'selected_regiao' => $request->id_regiao,
-            'selected_ueo' => $request->ueo,
-            'selected_subunidade' => $request->subunidade,
-            'selected_cargos' => $request->filtrar_cargos,
-        ]);
+        return view('organicStructure.generateStructure.specific', compact('ramos', 'regioes', 'ueos', 'subunidades', 'estrutura'))
+            ->with([
+                'selected_ramo' => $request->ramo,
+                'selected_regiao' => $request->id_regiao,
+                'selected_ueo' => $request->unidade,
+                'selected_subunidade' => $request->subunidade,
+                'selected_cargos' => $request->filtrar_cargos,
+            ]);
     }
+
 
     public function getUeos($regiao)
     {

@@ -21,7 +21,7 @@
         <div class="card mb-4 border-0 shadow-sm">
             <div class="card-header bg-nav text-white">
                 <div class="d-flex justify-content-between align-items-center">
-                    <span><i class="fas fa-plus-circle me-2"></i> Cadastrar</span>
+                    <h5><i class="fas fa-plus-circle me-2"></i> Cadastrar</h5>
                     @can('create-specialist')
                         <a href="{{ route('structure.index') }}" class="btn btn-light btn-sm">
                             <i class="fas fa-list me-1"></i> Listar
@@ -46,8 +46,6 @@
                 <form action="{{ route('structure.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
 
-
-
                     <div class="row g-3 mb-4">
                         <!-- Ramo -->
                         <div class="col-md-4">
@@ -57,12 +55,12 @@
                                     @foreach ($ramos as $ramo)
                                         <option value="{{ $ramo->RamoID }}" data-desc="{{ $ramo->Ramo }}"
                                             {{ old('ramo') == $ramo->RamoID ? 'selected' : '' }}>
-                                            {{ $ramo->Ramo }}
+                                            {{ $ramo->DescRamo }}
                                         </option>
                                     @endforeach
                                 </select>
                                 <label for="ramo" class="text-muted">
-                                    <i class="fas fa-building me-2"></i>Ramo <span class="text-danger">*</span>
+                                    <i class="fas fa-flag me-1"></i> Ramo <span class="text-danger">*</span>
                                 </label>
                             </div>
                         </div>
@@ -89,8 +87,6 @@
                                 </label>
                             </div>
                         </div>
-
-
 
                         <div class="col-md-4">
                             <div class="form-floating">
@@ -169,8 +165,6 @@
                                 </label>
                             </div>
                         </div>
-
-
                     </div>
 
                     <div class="row g-3 mb-4">

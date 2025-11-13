@@ -22,7 +22,7 @@
         <div class="card mb-4 border-0 shadow-sm">
             <div class="card-header bg-nav text-white">
                 <div class="d-flex justify-content-between align-items-center">
-                    <span><i class="fas fa-list me-2"></i> Lista de Estruturas Orgânicas</span>
+                    <h5><i class="fas fa-list me-2"></i> Lista de Estruturas Orgânicas</h5>
                     @can('create-structure')
                         <a href="{{ route('structure.create') }}" class="btn btn-light btn-sm">
                             <i class="fas fa-plus-circle me-1"></i> Cadastrar
@@ -35,7 +35,7 @@
                 <x-alert />
 
                 <div class="table-responsive">
-                    <table class="table table-striped table-hover align-middle">
+                    <table class="table table-striped table-hover align-middle" id="table-estrutura">
                         <thead class="table-light">
                             <tr>
                                 <th class="d-none d-sm-table-cell">UEO</th>
@@ -49,8 +49,8 @@
                         <tbody>
                             @forelse ($estruturas as $estrutura)
                                 <tr class="hover-shadow">
-                                    <td class="d-none d-sm-table-cell">
-                                        <span class="badge bg-success text-white">{{ $estrutura->unidade_mae }}</span>
+                                    <td class="">
+                                        <span class="text-wrap fw-semibold">{{ $estrutura->unidade_mae }}</span>
                                     </td>
                                     <td class="d-none d-md-table-cell">{{ $estrutura->cargo }}</td>
                                     <td class="d-none d-md-table-cell">{{ $estrutura->pessoa }}</td>
@@ -100,9 +100,7 @@
                             @endforelse
                         </tbody>
                     </table>
-                    <div class="d-flex justify-content-center mt-3">
-                        {{ $estruturas->links() }}
-                    </div>
+                   
                 </div>
             </div>
         </div>

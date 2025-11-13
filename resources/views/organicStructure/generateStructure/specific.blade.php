@@ -43,34 +43,55 @@
                 <!-- Formulário de Filtro -->
                 <form action="{{ route('structure.specific') }}" method="POST" class="row g-3">
                     @csrf
+
+                    <!-- Ramo -->
+                    <div class="col-md-3">
+                        <label for="ramo" class="form-label">
+                            <i class="fas fa-flag me-1"></i> Ramo <span class="text-danger">*</span>
+                        </label>
+                        <select name="ramo" id="ramo" class="form-select form-select-sm">
+                            <option value="">Selecione um ramo</option>
+                            @foreach ($ramos as $ramo)
+                                <option value="{{ $ramo->RamoID }}"
+                                    {{ old('ramo', $selected_ramo ?? '') == $ramo->RamoID ? 'selected' : '' }}>
+                                    {{ $ramo->DescRamo }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
                     <!-- Região -->
                     <div class="col-md-3">
-                        <label for="id_regiao" class="form-label">
+                        <label for="id_regiao" class="form-label" id="label-regiao">
                             <i class="fas fa-map-marked-alt me-1"></i> Região
                         </label>
                         <select class="form-select form-select-sm" id="id_regiao" name="id_regiao">
                             <option value="">Selecione uma região</option>
                             @foreach ($regioes as $regiao)
-                                <option value="{{ $regiao->id_regiao }}"
-                                    {{ old('id_regiao', $selected_regiao ?? '') == $regiao->id_regiao ? 'selected' : '' }}>
-                                    {{ $regiao->nome_regiao }}
-                                </option>
+                                @if (request('ramo') == $regiao->RamoID || (isset($selected_ramo) && $selected_ramo == $regiao->RamoID))
+                                    <option value="{{ $regiao->id_regiao }}"
+                                        {{ old('id_regiao', $selected_regiao ?? '') == $regiao->id_regiao ? 'selected' : '' }}>
+                                        {{ $regiao->nome_regiao }}
+                                    </option>
+                                @endif
                             @endforeach
                         </select>
                     </div>
 
                     <!-- UEO -->
                     <div class="col-md-3">
-                        <label for="id_pai" class="form-label">
+                        <label for="unidade" class="form-label">
                             <i class="fas fa-building me-1"></i> UEO
                         </label>
-                        <select name="ueo" id="id_pai" class="form-select form-select-sm">
+                        <select name="unidade" id="unidade" class="form-select form-select-sm">
                             <option value="">Selecione uma UEO</option>
                             @foreach ($ueos as $ueo)
-                                <option value="{{ $ueo->id_unidade_pai }}"
-                                    {{ old('ueo', $selected_ueo ?? '') == $ueo->id_unidade_pai ? 'selected' : '' }}>
-                                    {{ $ueo->Ueo }}
-                                </option>
+                                @if (request('id_regiao') == $ueo->RM || (isset($selected_regiao) && $selected_regiao == $ueo->RM))
+                                    <option value="{{ $ueo->id_unidade_pai }}"
+                                        {{ old('unidade', $selected_ueo ?? '') == $ueo->id_unidade_pai ? 'selected' : '' }}>
+                                        {{ $ueo->Ueo }}
+                                    </option>
+                                @endif
                             @endforeach
                         </select>
                     </div>
@@ -93,23 +114,28 @@
 
                     <!-- Filtro de Cargos -->
                     <div class="col-md-2">
-                        <label for="filtrar_cargos" class="form-label ">
-                            <i class="fas fa-user-tie me-1"></i> Filtrar Cargos
+                        <label for="filtrar_cargos" class="form-label">
+                            <i class="fas fa-filter me-1"></i> Filtrar Cargos
                         </label>
                         <select name="filtrar_cargos" id="filtrar_cargos" class="form-select form-select-sm">
-                            <option value="1" {{ old('filtrar_cargos', $selected_cargos ?? 1) == 1 ? 'selected' : '' }}>Todos</option>
-                            <option value="2" {{ old('filtrar_cargos', $selected_cargos ?? '') == 2 ? 'selected' : '' }}>Ocupados</option>
-                            <option value="3" {{ old('filtrar_cargos', $selected_cargos ?? '') == 3 ? 'selected' : '' }}>Vagos</option>
+                            <option value="1"
+                                {{ old('filtrar_cargos', $selected_cargos ?? 1) == 1 ? 'selected' : '' }}>Todos</option>
+                            <option value="2"
+                                {{ old('filtrar_cargos', $selected_cargos ?? '') == 2 ? 'selected' : '' }}>Ocupados
+                            </option>
+                            <option value="3"
+                                {{ old('filtrar_cargos', $selected_cargos ?? '') == 3 ? 'selected' : '' }}>Vagos</option>
                         </select>
                     </div>
 
-                    <!-- Botão de Submit -->
-                    <div class="col-md-1 d-flex align-items-end">
-                        <button type="submit" class="btn btn-sm btn-warning w-90">
+                    <!-- Botão -->
+                    <div class="col-md-3 d-flex align-items-end">
+                        <button type="submit" class="btn btn-md btn-warning w-50">
                             <i class="fas fa-search me-1"></i> Filtrar
                         </button>
                     </div>
                 </form>
+
 
                 <!-- Tabela de Resultados -->
                 @isset($estrutura)

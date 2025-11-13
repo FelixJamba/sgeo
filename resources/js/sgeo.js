@@ -1,27 +1,6 @@
-/** Carregar Região/Ueo/Subunidade------Gerar Estrutura Especifica------------------------------------------------*/
+/** Carregar Ueo/Subunidade------Gerar Estrutura Especifica------------------------------------------------*/
 $(document).ready(function () {
-    $("#id_regiao").on("change", function () {
-        let regiaoId = $(this).val();
-        $("#id_pai").empty().append('<option value="">Carregando...</option>');
-        $("#subunidade")
-            .empty()
-            .append('<option value="">-- Selecione a Subunidade --</option>');
-
-        if (regiaoId) {
-            $.get(`/get-ueos/${regiaoId}`, function (data) {
-                $("#id_pai")
-                    .empty()
-                    .append('<option value="">Selecione</option>');
-                data.forEach((ueo) => {
-                    $("#id_pai").append(
-                        `<option value="${ueo.id_unidade_pai}">${ueo.Ueo}</option>`
-                    );
-                });
-            });
-        }
-    });
-
-    $("#id_pai").on("change", function () {
+    $("#unidade").on("change", function () {
         let ueoId = $(this).val();
         $("#subunidade")
             .empty()
@@ -47,7 +26,7 @@ $(document).ready(function () {
 
 /**-------------Carregar Região/Ueo-----Gerar-Estrutura-Geral---------------- */
 document.addEventListener("DOMContentLoaded", function () {
-    const regiaoSelect = document.getElementById("regiao");
+    const regiaoSelect = document.getElementById("id_regiao");
     const unidadeSelect = document.getElementById("unidade");
 
     regiaoSelect.addEventListener("change", function () {
@@ -87,6 +66,45 @@ $(document).ready(function () {
         paging: true,
         searching: true,
         ordering: true,
+        order: [], 
+        info: true,
+        pageLength: 10, // Definir quantos registros mostrar por página
+        lengthMenu: [
+            [10, 25, 50, -1],
+            [10, 25, 50, "Todos"],
+        ],
+        language: {
+            lengthMenu: "Mostrar _MENU_ registros por página",
+            zeroRecords: "Nenhum registro encontrado",
+            info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
+            infoEmpty: "Nenhum registro disponível",
+            infoFiltered: "(Filtrado de _MAX_ registros no total)",
+            search: "Pesquisar:",
+            paginate: {
+                first: "Primeiro",
+                last: "Último",
+                next: "Próximo",
+                previous: "Anterior",
+            },
+        },
+        dom: "Bfrtip",
+        buttons: [
+            //{ extend: 'copy', text: 'Copiar' },
+           // { extend: 'excel', text: 'Exportar Excel' },
+            //{ extend: 'print', text: '<i class="fas fa-print"></i> Imprimir' }
+        ],
+    });
+});
+/**Fim dataTables Especialistas */
+
+/**dataTables Estrutura-Orgânica */
+$(document).ready(function () {
+    $("#table-estrutura").DataTable({
+        responsive: true,
+        paging: true,
+        searching: true,
+        order: [], 
+        ordering: true,
         info: true,
         pageLength: 10, // Definir quantos registros mostrar por página
         lengthMenu: [
@@ -113,9 +131,10 @@ $(document).ready(function () {
             //{ extend: 'excel', text: 'Exportar Excel' },
             // { extend: 'print', text: 'Imprimir' }
         ],
+        
     });
 });
-/**Fim dataTables Especialistas */
+/**Fim dataTables Estrutura-Orgânica *
 
 /**Pesquisa por NIP */
 document.addEventListener("DOMContentLoaded", function () {
@@ -178,8 +197,50 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 });
-
 /**FIM------------------------------------------------- */
+
+/**Grupos de Línguas */
+document.addEventListener("DOMContentLoaded", function () {
+    const container = document.getElementById("linguas-container");
+
+    // Função para carregar línguas via AJAX
+    function carregarLinguas(grupoId, selectElement, selectedId = null) {
+        selectElement.innerHTML = "<option>Carregando...</option>";
+        fetch(`/linguas-por-grupo/${grupoId}`)
+            .then((response) => response.json())
+            .then((data) => {
+                let options = '<option value="">Selecione</option>';
+                data.forEach((lingua) => {
+                    const selected =
+                        selectedId && selectedId == lingua.idLingua
+                            ? "selected"
+                            : "";
+                    options += `<option value="${lingua.idLingua}" ${selected}>${lingua.descricaoLingua}</option>`;
+                });
+                selectElement.innerHTML = options;
+            })
+            .catch(() => {
+                selectElement.innerHTML =
+                    '<option value="">Erro ao carregar</option>';
+            });
+    }
+
+    // Evento de mudança para selects dependentes
+    container.addEventListener("change", function (e) {
+        if (e.target.classList.contains("tipo-lingua")) {
+            const grupoId = e.target.value;
+            const linguaSelect = e.target
+                .closest(".lingua-entry")
+                .querySelector(".lingua");
+            if (grupoId) {
+                carregarLinguas(grupoId, linguaSelect);
+            } else {
+                linguaSelect.innerHTML =
+                    '<option value="">Selecione o tipo primeiro</option>';
+            }
+        }
+    });
+});
 
 /** provincia/municipio */
 
@@ -559,10 +620,6 @@ document.getElementById('ramo').addEventListener('change', function () {
 });
 
 
-/** -------------------------------------------------*/
-
-/**Gráfico especialistasPorRegiao */
-
 /** FIM*/
 
 /**Rspecialista */
@@ -580,48 +637,7 @@ function previewFoto(input) {
 }
 /** */
 
-/**Grupos de Línguas */
-document.addEventListener("DOMContentLoaded", function () {
-    const container = document.getElementById("linguas-container");
 
-    // Função para carregar línguas via AJAX
-    function carregarLinguas(grupoId, selectElement, selectedId = null) {
-        selectElement.innerHTML = "<option>Carregando...</option>";
-        fetch(`/linguas-por-grupo/${grupoId}`)
-            .then((response) => response.json())
-            .then((data) => {
-                let options = '<option value="">Selecione</option>';
-                data.forEach((lingua) => {
-                    const selected =
-                        selectedId && selectedId == lingua.idLingua
-                            ? "selected"
-                            : "";
-                    options += `<option value="${lingua.idLingua}" ${selected}>${lingua.descricaoLingua}</option>`;
-                });
-                selectElement.innerHTML = options;
-            })
-            .catch(() => {
-                selectElement.innerHTML =
-                    '<option value="">Erro ao carregar</option>';
-            });
-    }
-
-    // Evento de mudança para selects dependentes
-    container.addEventListener("change", function (e) {
-        if (e.target.classList.contains("tipo-lingua")) {
-            const grupoId = e.target.value;
-            const linguaSelect = e.target
-                .closest(".lingua-entry")
-                .querySelector(".lingua");
-            if (grupoId) {
-                carregarLinguas(grupoId, linguaSelect);
-            } else {
-                linguaSelect.innerHTML =
-                    '<option value="">Selecione o tipo primeiro</option>';
-            }
-        }
-    });
-});
 
 document.addEventListener("DOMContentLoaded", function () {
     const provinciaSelect = document.getElementById("id_provincia");

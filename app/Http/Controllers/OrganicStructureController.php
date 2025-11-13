@@ -50,11 +50,11 @@ class OrganicStructureController extends Controller
                 'do_unidadesmilitares.Ueo_Abrev',
                 'do_ramos.RamoID',
                 'do_ramos.DescRamo',
-                DB::raw("CONCAT(tbl_estrutura_sub_unidade.descricao_sub_unidade, ' - ', do_unidadesmilitares.Ueo_Abrev, ' / ', tbl_regiaomilitar.abrev_RM) AS unidade_mae"),
+                DB::raw("CONCAT(tbl_estrutura_sub_unidade.descricao_sub_unidade, ' - ', do_unidadesmilitares.Ueo, ' / ', tbl_regiaomilitar.abrev_RM) AS unidade_mae"),
             ])
             // 🧠 Aqui está a parte importante:
             ->orderByRaw("CASE WHEN do_ramos.RamoID = 5 THEN 0 ELSE 1 END")
-            ->orderBy('estrutura_organica.id_estrutura_organica', 'ASC')->paginate(20);
+            ->orderBy('estrutura_organica.id_estrutura_organica', 'asc')->get();
 
         return view('organicStructure.list.index', ['menu' => 'structures', 'estruturas' => $dadosEstrutura,]);
     }
@@ -127,7 +127,7 @@ class OrganicStructureController extends Controller
         // Buscar os detalhes da estrutura orgânica
         $estrutura = DB::select(
             "
-        SELECT
+            SELECT
             estrutura_organica.id_estrutura_organica,
             tbl_estrutura_sub_unidade.descricao_sub_unidade,
             cargo.nome_cargo AS cargo,
@@ -143,7 +143,7 @@ class OrganicStructureController extends Controller
                     ELSE tbl_estrutura_sub_unidade.descricao_sub_unidade
                 END
             ) AS nome_unidade
-        FROM estrutura_organica
+         FROM estrutura_organica
         INNER JOIN tbl_dependencias
             ON tbl_dependencias.id_dependencia = estrutura_organica.id_dependencia
         LEFT JOIN tbl_estrutura_sub_unidade
@@ -160,7 +160,7 @@ class OrganicStructureController extends Controller
             ON estrutura_organica.id_estrutura_organica = qry_cargo_pessoa.id_estrutura_organica
         WHERE estrutura_organica.id_estrutura_organica = ?
         LIMIT 1
-    ",
+     ",
             [$id],
         );
 
@@ -284,7 +284,7 @@ class OrganicStructureController extends Controller
             // Deleta a estrutura
             DB::table('estrutura_organica')->where('id_estrutura_organica', $id)->delete();
 
-            return redirect()->route('structure.index')->with('success', 'Estrutura removida com sucesso!');
+            return redirect()->route('structure.index')->with('success', 'Estrutura removida!');
         } catch (\Exception $e) {
             return redirect()->route('structure.index')->with('error', 'Erro ao apagar a estrutura.');
         }

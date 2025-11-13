@@ -73,7 +73,7 @@ class DashboardController extends Controller
                 DB::raw('COUNT(pessoa_juridica.id_pessoa_juridica) AS numero_especialistas'),
                 'tbl_regiaomilitar.CodRM',
                 'tbl_regiaomilitar.Designacao_RM'
-            )
+            )->orderBy('tbl_regiaomilitar.RamoID', 'asc')
             ->groupBy('tbl_regiaomilitar.CodRM', 'tbl_regiaomilitar.Designacao_RM')
             ->get();
 
