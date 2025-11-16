@@ -67,7 +67,7 @@
                                                     @foreach ($ramos as $ramo)
                                                         <option value="{{ $ramo->RamoID }}"
                                                             {{ old('ramo', $estrutura->RamoID ?? '') == $ramo->RamoID ? 'selected' : '' }}>
-                                                            {{ $ramo->Ramo }}
+                                                            {{ $ramo->DescRamo }}
                                                         </option>
                                                     @endforeach
                                                 </select>
@@ -77,36 +77,34 @@
                                             </div>
                                         </div>
 
-
                                         <div class="col-md-4">
                                             <div class="form-floating">
-                                                <select id="id_regiao" name="id_regiao" class="form-select">
+                                                <select id="regiao" name="regiao" class="form-select">
                                                     <option value="">Selecione</option>
                                                     @foreach ($regioes as $regiao)
                                                         <option value="{{ $regiao->CodRM }}"
-                                                            {{ old('id_regiao', $estrutura->id_regiao) == $regiao->CodRM ? 'selected' : '' }}>
+                                                            {{ old('regiao', $estrutura->id_regiao) == $regiao->CodRM ? 'selected' : '' }}>
                                                             {{ $regiao->Designacao_RM }}
                                                         </option>
                                                     @endforeach
                                                 </select>
-                                                <label for="id_regiao"><i
+                                                <label for="regiao" id="label-regiao"><i
                                                         class="fas fa-map-marked-alt me-2"></i>Região</label>
                                             </div>
                                         </div>
 
                                         <div class="col-md-4">
                                             <div class="form-floating">
-                                                <select id="id_pai" name="id_pai" class="form-select">
+                                                <select id="unidade" name="unidade" class="form-select">
                                                     <option value="">Selecione</option>
                                                     @foreach ($unidadesMilitares as $unidade)
                                                         <option value="{{ $unidade->UnidadeID }}"
-                                                            {{ old('id_pai', $estrutura->id_unidade_pai) == $unidade->UnidadeID ? 'selected' : '' }}>
+                                                            {{ old('unidade', $estrutura->id_unidade_pai) == $unidade->UnidadeID ? 'selected' : '' }}>
                                                             {{ $unidade->Ueo }}
                                                         </option>
                                                     @endforeach
                                                 </select>
-                                                <label for="id_pai"><i class="fas fa-building me-2"></i>Unidade
-                                                    Pai</label>
+                                                <label for="id_pai"><i class="fas fa-building me-2"></i>UEO</label>
                                                 <x-alert field="id_pai" />
                                             </div>
                                         </div>
@@ -127,7 +125,7 @@
                                                     @endforeach
                                                 </select>
                                                 <label for="id_sub_unidade_mae"><i
-                                                        class="fas fa-level-up-alt me-2"></i>Subunidade Mãe</label>
+                                                        class="fas fa-level-up-alt me-2"></i>UEO Superior</label>
                                             </div>
                                         </div>
 
@@ -144,7 +142,7 @@
                                                     @endforeach
                                                 </select>
                                                 <label for="id_sub_unidade_filho"><i
-                                                        class="fas fa-level-down-alt me-2"></i>Subunidade Filho</label>
+                                                        class="fas fa-level-down-alt me-2"></i>UEO Inferior</label>
                                             </div>
                                         </div>
                                         <div class="col-md-4">

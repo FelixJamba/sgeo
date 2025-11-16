@@ -279,6 +279,57 @@
                                         value="{{ old('Nro_Calca') }}" placeholder="Ex: 40">
                                 </div>
 
+                                <div class="col-md-3">
+                                    <label for="id_provincia_residencia" class="form-label">Residência <span
+                                            class="text-secondary">*</span></label>
+                                    <select name="id_provincia_residencia" id="id_provincia_residencia"
+                                        class="form-select">
+                                        <option value="">Selecione</option>
+                                        @foreach ($provincias as $provincia)
+                                            <option value="{{ $provincia->idprovincia }}">{{ $provincia->provincia }}
+                                            </option>
+                                        @endforeach
+
+                                    </select>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <label for="id_municipio_residencia" class="form-label">Município <span
+                                            class="text-secondary">*</span></label>
+                                    <select name="id_municipio_residencia" id="id_municipio_residencia"
+                                        class="form-select">
+                                        <option value="">Selecione o Município</option>
+                                        <!-- preenchido dinamicamente via JS -->
+                                    </select>
+                                </div>
+
+
+                                <div class="col-md-3">
+                                    <label for="id_zona" class="form-label">Zona <span
+                                            class="text-secondary">*</span></label>
+                                    <select name="id_zona" id="id_zona" class="form-select">
+                                        <option value="">Selecione a Zona</option>
+                                        <!-- preenchido via JS -->
+                                    </select>
+                                </div>
+
+
+                                <div class="col-md-3">
+                                    <label for="id_bairro" class="form-label">Bairro <span
+                                            class="text-secondary">*</span></label>
+                                    <select name="id_bairro" id="id_bairro" class="form-select">
+                                        <option value="{{ old('id_bairro', $specialist->idbairro ?? '') }}" selected>
+                                            Actual</option>
+                                    </select>
+                                </div>
+
+
+                                <div class="col-md-6">
+                                    <label for="endereco" class="form-label">Endereço <span
+                                            class="text-secondary">*</span></label>
+                                    <input type="text" name="endereco" id="endereco" class="form-control"
+                                        value="{{ old('endereco') }}">
+                                </div>
                             </div>
                         </div>
 
@@ -332,11 +383,7 @@
                                     </label>
                                     <select name="especialidade" id="especialidade" class="form-select">
                                         <option value="">Selecione</option>
-                                        @foreach ($especialidades as $especialidade)
-                                            <option value="{{ $especialidade->id_especialidade }}"
-                                                {{ old('especialidade') == $especialidade->id_especialidade ? 'selected' : '' }}>
-                                                {{ $especialidade->nome_especialidade }}</option>
-                                        @endforeach
+                                        
                                     </select>
                                 </div>
                                 <div class="col-md-4">

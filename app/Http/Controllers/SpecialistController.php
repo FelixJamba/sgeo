@@ -208,8 +208,6 @@ class SpecialistController extends Controller
                 'created' => now(),
             ]);
 
-            $this->logAuditoria('pessoa_fisica', $idPessoaFisica, 'insert', $request->all());
-
             // ===============================
             // 2. Inserir pessoa_juridica
             // ===============================
@@ -222,8 +220,6 @@ class SpecialistController extends Controller
                 'id_situacao' => $request->id_condicao,
                 'created' => now(),
             ]);
-
-            $this->logAuditoria('pessoa_juridica', $idPessoaFisica, 'insert', $request->all());
 
             // ===============================
             // 3. Inserir endereco

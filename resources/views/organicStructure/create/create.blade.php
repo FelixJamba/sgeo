@@ -68,10 +68,10 @@
                         <!-- Região -->
                         <div class="col-md-4">
                             <div class="form-floating">
-                                <select class="form-select" id="id_regiao" name="id_regiao" required>
+                                <select class="form-select" id="regiao" name="regiao" required>
                                     <option value="">Selecione o ramo primeiro</option>
                                 </select>
-                                <label for="id_regiao" id="label-regiao" class="text-muted">
+                                <label for="regiao" id="label-regiao" class="text-muted">
                                     <i class="fas fa-map-marker-alt me-2"></i>Região <span class="text-danger">*</span>
                                 </label>
                             </div>
@@ -79,10 +79,10 @@
 
                         <div class="col-md-4">
                             <div class="form-floating">
-                                <select name="id_pai" id="id_pai" class="form-select" required>
+                                <select name="unidade" id="unidade" class="form-select" required>
                                     <option value="">Selecione</option>
                                 </select>
-                                <label for="id_pai" class="text-muted">
+                                <label for="unidade" class="text-muted">
                                     <i class="fas fa-building me-2"></i>UEO <span class="text-danger">*</span>
                                 </label>
                             </div>

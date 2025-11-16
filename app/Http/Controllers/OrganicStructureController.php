@@ -88,14 +88,14 @@ class OrganicStructureController extends Controller
 
         // Verificação de dependência com os dados
         $dependencia = DB::table('tbl_dependencias')->where([
-            ['id_unidade_pai', '=', $dados['id_pai']],
+            ['id_unidade_pai', '=', $dados['unidade']],
             ['id_sub_unidade_mae', '=', $dados['id_sub_unidade_mae']],
             ['id_sub_sub_filho', '=', $dados['id_sub_unidade_filho']],
         ])->first();
 
         if (!$dependencia) {
             $idDependencia = DB::table('tbl_dependencias')->insertGetId([
-                'id_unidade_pai' => $dados['id_pai'],
+                'id_unidade_pai' => $dados['unidade'],
                 'id_sub_unidade_mae' => $dados['id_sub_unidade_mae'],
                 'id_sub_sub_filho' => $dados['id_sub_unidade_filho'],
                 'id_usuario' => auth()->id() ?? 1, // ou outro valor padrão
@@ -105,7 +105,7 @@ class OrganicStructureController extends Controller
         }
 
         // Remover id_regiao dos dados antes de salvar
-        unset($dados['id_regiao']);
+        unset($dados['regiao']);
 
         DB::table('estrutura_organica')->insert([
             'id_dependencia' => $idDependencia,
@@ -235,12 +235,12 @@ class OrganicStructureController extends Controller
 
         // Atualizar dependência
         $dependencia = DB::table('tbl_dependencias')
-            ->where([['id_unidade_pai', '=', $dados['id_pai']], ['id_sub_unidade_mae', '=', $dados['id_sub_unidade_mae']], ['id_sub_sub_filho', '=', $dados['id_sub_unidade_filho']]])
+            ->where([['id_unidade_pai', '=', $dados['unidade']], ['id_sub_unidade_mae', '=', $dados['id_sub_unidade_mae']], ['id_sub_sub_filho', '=', $dados['id_sub_unidade_filho']]])
             ->first();
 
         if (!$dependencia) {
             $idDependencia = DB::table('tbl_dependencias')->insertGetId([
-                'id_unidade_pai' => $dados['id_pai'],
+                'id_unidade_pai' => $dados['unidade'],
                 'id_sub_unidade_mae' => $dados['id_sub_unidade_mae'],
                 'id_sub_sub_filho' => $dados['id_sub_unidade_filho'],
                 'id_usuario' => auth()->id() ?? 1,
